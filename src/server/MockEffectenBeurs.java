@@ -22,26 +22,17 @@ public class MockEffectenBeurs implements IEffectenBeurs {
         addFondsen();
         connectToDatabase();
         setTimer();
+        clearDataBase();
     }
 
     private boolean connectToDatabase() {
 
         boolean result = true;
         try {
-
             Class.forName("org.apache.derby.jdbc.ClientDriver").newInstance();
             connection = DriverManager.getConnection("jdbc:derby://localhost:1527/effectenbeurs");
-            //PreparedStatement statement = connection.prepareStatement("SELECT * from USERS");
-
-            //ResultSet resultSet = statement.executeQuery();
-            //while (resultSet.next()) {
-                //doStuff
-            //}
         } catch (Exception e) {
             result = false;
-            //throw e;
-        } finally {
-            // doStuff?
         }
 
         return result;
@@ -103,6 +94,9 @@ public class MockEffectenBeurs implements IEffectenBeurs {
         }, 0, UPDATE_TIME);
     }
 
+    private void clearDataBase() {
+        executeStatement("DELETE FROM EFFECTENBEURS");
+    }
     private void pushKoersenToDatabase() {
         for (Fonds fonds : fondsen) {
             pushKoersToDatabaseWithCurrentDateAndTime(fonds.getNaam(), fonds.getKoers());
@@ -110,24 +104,24 @@ public class MockEffectenBeurs implements IEffectenBeurs {
     }
 
     private void pushKoersToDatabaseWithCurrentDateAndTime(String name, double koers) {
-        PreparedStatement statement = null;
+        executeStatement("INSERT INTO EFFECTENBEURS VALUES ('"+name+"',"+koers +", DEFAULT)");
+    }
+
+    private boolean executeStatement(String statement) {
+        boolean result = true;
 
         if (connection != null) {
             try {
-                statement = connection.prepareStatement("INSERT INTO EFFECTENBEURS VALUES ('Rick', 23.3, DEFAULT)");
-
+                PreparedStatement preparedStatement = connection.prepareStatement(statement);
                 if (statement != null) {
-                    boolean resultSet = statement.execute();
-                    /*while (resultSet.next()) {
-                        System.out.println(resultSet.getString("NAME"));
-                        System.out.println(resultSet.getString("KOERS"));
-                        System.out.println(resultSet.getTimestamp("DATEANDTIME"));
-                    }
-                    */
+                    result = preparedStatement.execute();
                 }
             } catch (SQLException e) {
                 e.printStackTrace();
+                result = false;
             }
         }
+
+        return result;
     }
 }
