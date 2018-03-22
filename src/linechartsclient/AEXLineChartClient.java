@@ -53,6 +53,7 @@ public class AEXLineChartClient extends Application {
         lineChart.setLayoutX(0);
         lineChart.setLayoutY(50);
         lineChart.setMinWidth(root.getWidth());
+        lineChart.setMinHeight(root.getHeight() - 100.0);
 
         connectToDatabase();
 
@@ -73,13 +74,28 @@ public class AEXLineChartClient extends Application {
             Timestamp startDate = new Timestamp(currentTimeInMillis);
             Timestamp endDate = new Timestamp(currentTimeInMillis - rangeInMillis);
 
-            try {
-                series.clear();
-                names.clear();
-                fondsen.clear();
-                lineChart.getData().clear();
-                ResultSet resultSet = executeQuery("SELECT * FROM EFFECTENBEURS WHERE DATEANDTIME BETWEEN '" + endDate + "' AND '" + startDate + "'");
+            clearLineChart();
+            parseResult(executeQuery("SELECT * FROM EFFECTENBEURS WHERE DATEANDTIME BETWEEN '" + endDate + "' AND '" + startDate + "'"));
+            fillLineChart();
+        }
+    }
 
+    private void fillLineChart() {
+        for (String name : names) {
+            for (Pair<Timestamp, Double> values : fondsen.get(name)) {
+                String value = dateFormatter.format(values.getKey().getTime());
+                series.get(name).getData().add(new XYChart.Data(value, values.getValue()));
+            }
+
+            if (!lineChart.getData().contains(series.get(name))) {
+                lineChart.getData().add(series.get(name));
+            }
+        }
+    }
+
+    private void parseResult(ResultSet resultSet) {
+        if (resultSet != null) {
+            try {
                 while (resultSet.next()) {
                     String name = resultSet.getString("NAME");
                     Double koers = resultSet.getDouble("KOERS");
@@ -94,26 +110,17 @@ public class AEXLineChartClient extends Application {
 
                     fondsen.get(name).add(new Pair<>(timestamp, koers));
                 }
-
-                for (String name : names) {
-                    for (Pair<Timestamp, Double> values : fondsen.get(name)) {
-                        String value = dateFormatter.format(values.getKey().getTime());
-
-                        //Platform.runLater(() -> {
-                            series.get(name).getData().add(new XYChart.Data(value, values.getValue()));
-                        //});
-                    }
-
-                    //Platform.runLater(() -> {
-                        if (!lineChart.getData().contains(series.get(name))) {
-                            lineChart.getData().add(series.get(name));
-                        }
-                    //});
-                }
             } catch (SQLException e) {
                 e.printStackTrace();
             }
         }
+    }
+
+    private void clearLineChart() {
+        series.clear();
+        names.clear();
+        fondsen.clear();
+        lineChart.getData().clear();
     }
 
     private void connectToDatabase() {
