@@ -1,4 +1,4 @@
-package client;
+package bannerclient;
 
 public enum RequestType {
     REQUEST_ALL,

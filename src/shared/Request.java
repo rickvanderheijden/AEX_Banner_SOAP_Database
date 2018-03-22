@@ -1,6 +1,6 @@
 package shared;
 
-import client.RequestType;
+import bannerclient.RequestType;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;

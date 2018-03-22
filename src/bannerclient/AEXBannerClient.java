@@ -1,4 +1,4 @@
-package client;
+package bannerclient;
 
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;

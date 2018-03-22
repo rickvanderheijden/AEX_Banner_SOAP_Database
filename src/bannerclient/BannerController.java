@@ -1,4 +1,4 @@
-package client;
+package bannerclient;
 
 import server.IEffectenBeurs;
 import shared.Fonds;
@@ -17,12 +17,12 @@ class BannerController extends UnicastRemoteObject {
 
     private static final String DIVIDER = "     ";
     private static final int UPDATE_TIME = 2000;
-    private final client.AEXBannerClient banner;
+    private final bannerclient.AEXBannerClient banner;
     private final Timer pollingTimer = new Timer();
     private RequestType requestType = RequestType.REQUEST_ALL;
     private IEffectenBeurs effectenBeurs;
 
-    public BannerController(client.AEXBannerClient banner) throws RemoteException {
+    public BannerController(bannerclient.AEXBannerClient banner) throws RemoteException {
         this.banner = banner;
         if (createConnection()) {
             startPollingTimer();

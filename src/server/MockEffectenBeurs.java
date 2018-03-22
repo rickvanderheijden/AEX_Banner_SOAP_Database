@@ -1,6 +1,6 @@
 package server;
 
-import client.RequestType;
+import bannerclient.RequestType;
 import shared.Fonds;
 import shared.Request;
 
@@ -25,17 +25,14 @@ public class MockEffectenBeurs implements IEffectenBeurs {
         clearDataBase();
     }
 
-    private boolean connectToDatabase() {
-
-        boolean result = true;
+    private void connectToDatabase() {
         try {
             Class.forName("org.apache.derby.jdbc.ClientDriver").newInstance();
             connection = DriverManager.getConnection("jdbc:derby://localhost:1527/effectenbeurs");
         } catch (Exception e) {
-            result = false;
+            System.out.println("Unable to connect to database");
         }
 
-        return result;
     }
 
     public List<Fonds> getKoersen(Request request) {
@@ -60,8 +57,8 @@ public class MockEffectenBeurs implements IEffectenBeurs {
 
     private void addFondsen() {
         fondsen = new ArrayList<>();
-        addFonds("Aegon", 5.618);
-        addFonds("KPN", 2.633);
+        addFonds("Aegon", 35.618);
+        addFonds("KPN", 42.633);
         addFonds("Philips", 31.500);
         addFonds("Randstad", 58.360);
         addFonds("Unilever", 43.485);
@@ -107,21 +104,17 @@ public class MockEffectenBeurs implements IEffectenBeurs {
         executeStatement("INSERT INTO EFFECTENBEURS VALUES ('"+name+"',"+koers +", DEFAULT)");
     }
 
-    private boolean executeStatement(String statement) {
-        boolean result = true;
-
+    private void executeStatement(String statement) {
         if (connection != null) {
             try {
                 PreparedStatement preparedStatement = connection.prepareStatement(statement);
                 if (statement != null) {
-                    result = preparedStatement.execute();
+                    preparedStatement.execute();
                 }
             } catch (SQLException e) {
                 e.printStackTrace();
-                result = false;
             }
         }
 
-        return result;
     }
 }
